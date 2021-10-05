@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 
 public class Controller {
@@ -28,11 +29,11 @@ public class Controller {
     /**
      * check primitive root module.
      */
+    private static List<Long> primitiveList = new ArrayList<>();
 
     public boolean check_primitive(BigInteger p, BigInteger g){
             long i, j;
             long phi = p.longValue() - 1;
-            System.out.println(phi);
             List<Long> prime = new ArrayList<Long>();
             List<Long> pow = new ArrayList<Long>();
             for(i = 2; i < p.longValue() - 1;i++){
@@ -44,7 +45,7 @@ public class Controller {
             for(i = 0; i < prime.size(); i++) {
                 pow.add(phi/prime.get((int) i));
             }
-            List<Long> primitiveIntegers =new ArrayList<Long>();
+            List<Long> primitiveIntegers = new ArrayList<Long>();
             long flag = 0;
             for(i = 2; i <= phi; i++){
                 for(j = 0; j < pow.size();j++){
@@ -126,41 +127,68 @@ public class Controller {
     }
 
     // Function to find smallest primitive root of n
-    public int findPrimitive(int n) {
-        HashSet<Integer> s = new HashSet<Integer>();
-
-        // Check if n is prime or not
-        if (isPrime(n) == false) {
-            return -1;
+    public long findPrimitive(BigInteger p) {
+        long i, j;
+        long phi = p.longValue() - 1;
+        List<Long> prime = new ArrayList<Long>();
+        List<Long> pow = new ArrayList<Long>();
+        for(i = 2; i < p.longValue() - 1;i++){
+            if(phi % i == 0){
+                long x = phi/i;   //phi / prime
+                prime.add(x);
+            }
         }
-
-        int phi = n - 1;
-
-        // Find prime factors of phi and store in a set
-        findPrimeFactors(s, phi);
-        // Check for every number from 2 to phi
-        for (int r = 2; r <= phi; r++) {
-            // Iterate through all prime factors of phi.
-            // and check if we found a power with value 1
-            boolean flag = false;
-            for (Integer a : s) {
-
-                // Check if r^((phi)/primeFactors) mod n
-                // is 1 or not
-                if (power(r, phi / (a), n) == 1) {
-                    flag = true;
+        for(i = 0; i < prime.size(); i++) {
+            pow.add(phi/prime.get((int) i));
+        }
+        long flag = 0;
+        for(i = 2; i <= phi; i++){
+            for(j = 0; j < pow.size();j++){
+                if(Math.pow(i, pow.get((int) j)) % p.longValue() == 1){
+                    flag = 1;
                     break;
                 }
+                else
+                    flag = 0;
             }
-
-            // If there was no power with value 1.
-            if (flag == false) {
-                return r;
-            }
+            if(flag == 0)
+                primitiveList.add(i);
         }
-
-        // If no primitive root found
-        return -1;
+        return primitiveList.get(new Random().nextInt(primitiveList.size()));
+//        HashSet<Integer> s = new HashSet<Integer>();
+//        List<Integer> primitiveList = new ArrayList<>();
+//        // Check if n is prime or not
+//        if (isPrime(n) == false) {
+//            return -1;
+//        }
+//
+//        int phi = n - 1;
+//
+//        // Find prime factors of phi and store in a set
+//        findPrimeFactors(s, phi);
+//        // Check for every number from 2 to phi
+//        for (int r = 2; r <= phi; r++) {
+//            // Iterate through all prime factors of phi.
+//            // and check if we found a power with value 1
+//            boolean flag = false;
+//            for (Integer a : s) {
+//
+//                // Check if r^((phi)/primeFactors) mod n
+//                // is 1 or not
+//                if (power(r, phi / (a), n) == 1) {
+//                    flag = true;
+//                    break;
+//                }
+//            }
+//
+//            // If there was no power with value 1.
+//            if (flag == false) {
+//                primitiveList.add(r);
+//            }
+//        }
+//
+//        // If no primitive root found
+//        return primitiveList.get(0);
     }
 
     // Utility function to store prime factors of a number
@@ -211,7 +239,7 @@ public class Controller {
     }
 
     public void findButton_Clicked(ActionEvent event) {
-        BigInteger g_num = BigInteger.valueOf(findPrimitive(Integer.parseInt(p.getText())));
+        BigInteger g_num = BigInteger.valueOf(findPrimitive(new BigInteger(p.getText())));
         g.setText(g_num.toString());
     }
 }
